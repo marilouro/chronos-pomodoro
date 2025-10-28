@@ -9,7 +9,7 @@
   --gray-800: #181f2e;
   --gray-900: #0a0f1a;
 
-  -primary-light: #4de7b7;
+  --primary-light: #4de7b7;
   --primary: #0da170;
   --primary-dark: #065f46;
 
@@ -49,6 +49,6 @@
   --text-default: #0a0f1a;
   --text-muted: #272f43;
 
-  -link-color: #0b8a60;
+  --link-color: #0b8a60;
   --link-hover: #065f46;
 }
