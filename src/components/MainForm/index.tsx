@@ -1,7 +1,8 @@
-import { PlayCircleIcon } from "lucide-react";
+import { PlayCircleIcon, StopCircleIcon } from "lucide-react";
 import { useRef } from "react";
 import { useTaskContext } from "../../contexts/TaskContext/useTaskContext";
 import type { TaskModel } from "../../models/TaskModel";
+import { formatSecondsToMinutes } from "../../utils/formatSecondsToMinutes";
 import { getNextCycle } from "../../utils/getNextCycle";
 import { getNextCycleType } from "../../utils/getNextCycleType";
 import { Cycles } from "../Cycles";
@@ -39,8 +40,6 @@ export function MainForm() {
       type: nextCycleType,
     };
 
-    console.log("🎯 newTask:", state, newTask);
-
     const secondsRemaining = newTask.duration * 60;
 
     setState((prevState) => {
@@ -50,8 +49,19 @@ export function MainForm() {
         activeTask: newTask,
         currentCycle: nextCycle,
         secondsRemaining,
-        formattedSecondsRemaining: "00:00",
+        formattedSecondsRemaining: formatSecondsToMinutes(secondsRemaining),
         tasks: [...prevState.tasks, newTask],
+      };
+    });
+  }
+
+  function handleInterruptTask() {
+    setState((prevState) => {
+      return {
+        ...prevState,
+        activeTask: null,
+        secondsRemaining: 0,
+        formattedSecondsRemaining: "00:00",
       };
     });
   }
@@ -65,6 +75,7 @@ export function MainForm() {
           type="text"
           placeholder="Digite"
           ref={taskNameInput}
+          disabled={!!state.activeTask}
         />
       </div>
 
@@ -72,12 +83,32 @@ export function MainForm() {
         <p>loren ipsum dolor sit amet, consectetur adipiscing elit.</p>
       </div>
 
-      <div className="formRow">
-        <Cycles />
-      </div>
+      {state.currentCycle > 0 && (
+        <div className="formRow">
+          <Cycles />
+        </div>
+      )}
 
       <div className="formRow">
-        <DefaultButton type="submit" icon={<PlayCircleIcon />} />
+        {!state.activeTask ? (
+          <DefaultButton
+            aria-label="Iniciar nova tarefa"
+            title="Iniciar nova tarefa"
+            type="submit"
+            icon={<PlayCircleIcon />}
+            key="submit"
+          />
+        ) : (
+          <DefaultButton
+            aria-label="Interromper tarefa atual"
+            title="Interromper tarefa atual"
+            type="button"
+            color="red"
+            icon={<StopCircleIcon />}
+            onClick={handleInterruptTask}
+            key="interrupt"
+          />
+        )}
       </div>
     </form>
   );
