@@ -14,17 +14,13 @@ export function taskReducer(
       const nextCycle = getNextCycle(state.currentCycle);
       const secondsRemaining = newTask.duration * 60;
 
-      // Adiciona nova task e limita o histórico
-      const updatedTasks = [...state.tasks, newTask];
-      const limitedTasks = updatedTasks.slice(-state.config.maxHistorySize);
-
       return {
         ...state,
         activeTask: newTask,
         currentCycle: nextCycle,
         secondsRemaining,
         formattedSecondsRemaining: formatSecondsToMinutes(secondsRemaining),
-        tasks: limitedTasks,
+        tasks: [...state.tasks, newTask],
       };
     }
 
@@ -72,11 +68,11 @@ export function taskReducer(
       };
     }
 
-    case TaskActionTypes.CHANGE_SETTINGS:
-      {
-        return { ...state, config: { ...action.payload } };
-      }
+    case TaskActionTypes.CHANGE_SETTINGS: {
+      return { ...state, config: { ...action.payload } };
+    }
 
+    default:
       return state;
   }
 }
