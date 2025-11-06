@@ -1,7 +1,10 @@
 import { TrashIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+
 import { Container } from "../../components/Container";
 import { DefaultButton } from "../../components/DefaultButton";
+
+import { showMessage } from "../../adapters/showMessage";
 import { Heading } from "../../components/Heading";
 import { TaskActionTypes } from "../../contexts/TaskContext/taskActions";
 import { useTaskContext } from "../../contexts/TaskContext/useTaskContext";
@@ -14,6 +17,7 @@ import styles from "./styles.module.css";
 
 export function History() {
   const { state, dispatch } = useTaskContext();
+  const [confirmClearHistory, setConfirmClearHistory] = useState(false);
   const hasTasks = state.tasks.length > 0;
 
   const [sortTasksOptions, setSortTasksOptions] = useState<SortTasksOptions>(
@@ -37,6 +41,19 @@ export function History() {
     }));
   }, [state.tasks]);
 
+  useEffect(() => {
+    if (!confirmClearHistory) return;
+    setConfirmClearHistory(false);
+
+    dispatch({ type: TaskActionTypes.RESET_STATE });
+  }, [confirmClearHistory, dispatch]);
+
+  useEffect(() => {
+    return () => {
+      showMessage.dissmis();
+    };
+  }, []);
+
   function handleSortTasks({ field }: Pick<SortTasksOptions, "field">) {
     const newDirection = sortTasksOptions.direction === "desc" ? "asc" : "desc";
 
@@ -52,13 +69,13 @@ export function History() {
   }
 
   function handleResetHistory() {
-    if (
-      !confirm(
-        "Tem certeza que deseja apagar todo o histórico de tarefas? Esta ação não pode ser desfeita."
-      )
-    )
-      return;
-    dispatch({ type: TaskActionTypes.RESET_STATE });
+    showMessage.dissmis();
+    showMessage.confirm(
+      "Tem certeza que deseja apagar todo o histórico de tarefas? Esta ação não pode ser desfeita.",
+      (confirmation) => {
+        setConfirmClearHistory(confirmation);
+      }
+    );
   }
 
   return (
